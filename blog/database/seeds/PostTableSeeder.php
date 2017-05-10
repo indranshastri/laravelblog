@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Faker\Factory;
+use Carbon\carbon;
 use App\Post;
 class PostTableSeeder extends Seeder
 {
@@ -19,9 +20,12 @@ class PostTableSeeder extends Seeder
       $posts = [];
 
       $facker = Factory::create();
+      $date = Carbon::create(2017,5,1,9);
       for ($i=0; $i <10 ; $i++) {
         $image = "Post_image_". rand(1,5).".jpg";
-        $date = date("Y-m-d H:i:s",strtotime("2017-05-05 00:00:00 +$i days"));
+        $date = $date->addDays($i);
+        $published_at = clone($date);
+        $created_at = clone($date);
         $post[] = [
           "author_id"=>rand(1,3),
           "title"=> $facker->sentence(rand(8,12)),
@@ -29,8 +33,9 @@ class PostTableSeeder extends Seeder
           "body"=> $facker->paragraphs(rand(10,15),true),
           "sulg"=> $facker->slug(),
           "image"=> rand(0,1)==1?$image:Null,
-          "created_at"=> $date,
-          "updated_at"=> $date,
+          "created_at"=> $created_at,
+          "updated_at"=> $created_at,
+          "published_at" => $i < 5 ? $published_at : (rand(0,1)==0?null:$published_at->addDays(4))
         ];
       }
       //insertdata

@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\carbon;
 
 class Post extends Model
 {
+      public $dates = ["published_at"];
     public function getImageUrlAttribute($value){
         $imageurl = "";
 
@@ -24,9 +26,13 @@ class Post extends Model
     }
 
     public function getDateAttribute(){
-      return $this->created_at->diffForHumans();
+    return (is_null($this->published_at)) ? "" : $this->published_at->diffForHumans();
+
     }
-    public function scopelastestFirst(){
-      return $this->orderBy("created_at","desc");
+    public function scopeLastestFirst(){
+      return $this->orderBy("published_at","desc");
+    }
+    public function scopePublished(){
+      return $this->where("published_at","<=",Carbon::now());
     }
 }
