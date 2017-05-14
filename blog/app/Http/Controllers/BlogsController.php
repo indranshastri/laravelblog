@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Post;
+use App\Category;
 use App\Http\Requests;
 use League\CommonMark\CommonMarkConverter;
-
+use Carbon\carbon;
 
 class BlogsController extends Controller
 {
@@ -19,8 +20,25 @@ class BlogsController extends Controller
     public function index()
     {
         //\DB::enableQueryLog();
+        $categories = Category::with(["posts"=>function($query){
+          $query->where("published_at","<=",Carbon::now());
+          //$query->published();
+        }])->orderBy("title","asc")->get();
         $posts = Post::with('author')->lastestFirst()->published()->simplePaginate($this->limit);
-        return view("blog.index",compact("posts"));
+        //$posts = Post::with('author')->lastestFirst()->published()->simplePaginate($this->limit);
+        return view("blog.index",compact("posts","categories"));
+        //view("blog.index",compact("posts"))->render();
+      //  dd(\DB::getQueryLog());
+    }
+
+    public function category($id)
+    {
+        //\DB::enableQueryLog();
+        $categories = Category::with(["posts"=>function($query){
+            $query->where("published_at","<=",Carbon::now());
+        }])->orderBy("title","asc")->get();
+        $posts = Post::with('author')->lastestFirst()->published()->where("category_id",$id)->simplePaginate($this->limit);
+        return view("blog.index",compact("posts","categories"));
         //view("blog.index",compact("posts"))->render();
       //  dd(\DB::getQueryLog());
     }
